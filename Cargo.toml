@@ -1,0 +1,8 @@
+[package]
+name = "extip"
+version = "0.1.0"
+authors = ["Justin C. Miller <justin@devjustinian.com>"]
+
+[dependencies]
+hyper = "*"
+chrono = "*"

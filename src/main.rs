@@ -4,18 +4,29 @@ extern crate chrono;
 use chrono::Local;
 use chrono::Duration;
 use hyper::client::Client;
+use std::env::home_dir;
 use std::fs::File;
 use std::io::Read;
 use std::io::Write;
 use std::os::unix::fs::MetadataExt;
+use std::path::PathBuf;
 
-static CACHE_FILE: &'static str = "/tmp/extip.cache";
+static CACHE_FILE: &'static str = ".ipecho.cache";
 static IPECHO_URL: &'static str = "http://ipecho.net/plain";
+//static IPECHO_URL: &'static str = "http://ifconfig.me/ip";
+
+static CACHE_MINUTES: i64 = 15;
+
+fn get_cache_file() -> String {
+    let mut dir = home_dir().unwrap_or(PathBuf::from("."));
+    dir.push(CACHE_FILE);
+    String::from(dir.to_str().unwrap())
+}
 
 fn get_cached_ip() -> Option<String> {
-	let max_cache = Duration::minutes(15);
+	let max_cache = Duration::minutes(CACHE_MINUTES);
 
-	match File::open(CACHE_FILE) {
+	match File::open(get_cache_file()) {
 		Ok(mut f) => {
 			match f.metadata() {
 				Ok(m) => {
@@ -42,7 +53,7 @@ fn get_cached_ip() -> Option<String> {
 }
 
 fn write_file(ip: &String) {
-	match File::create(CACHE_FILE) {
+	match File::create(get_cache_file()) {
 		Ok(mut f) => {
 			match f.write_all(ip.as_bytes()) {
 				Ok(_) => {},
